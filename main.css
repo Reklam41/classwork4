@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  background-color: #ddd;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #ffa;
+  place-items: center;
+}
+
+main header {
+  background-color: #aff;
+
+  width: 100vw;
+}
+
+main section {
+  background-color: #faf;
+  flex-grow: 1;
+  width: 100vw;
+}
+
+main footer {
+  background-color: #afa;
+  height: 10vh;
+  width: 100vw;
+}
+main header h1 {
+  color: chocolate;
+}
+main header p {
+  color: crimson;
+}

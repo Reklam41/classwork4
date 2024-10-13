@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width", initial-scale=1.0">
+    <link rel="stylesheet" href="main.css" />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.5.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.5.1/mapbox-gl.js"></script>
+    <title>The Goat</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Dasvidanya 2GIS</h1>
+        <p id="coordinates">[the coordinates should be here]</p>
+      </header>
+      <section id="map">MAP</section>
+      <footer>reklam &copy; 2024</footer>
+    </main>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoibHRkbiIsImEiOiJjbHpxdXB1Y2sxMGx3MmlzMzVuODB2b2J0In0.2JiBJ1BtniZqx7LRMgXsCA";
+      const map = new mapboxgl.Map({
+        container: "map", // container ID
+        center: [28.0383, -26.1227], // starting position [lng, lat]
+        zoom: 13, // starting zoom
+      });
+
+      // First marker (set initially at a fixed location)
+      const marker1 = new mapboxgl.Marker({
+        color: "#ff4",
+      })
+        .setLngLat([28.0383, -26.1227])
+        .addTo(map);
+
+      // Second marker at a fixed location
+      const marker2 = new mapboxgl.Marker({
+        color: "black",
+        rotation: 45,
+      })
+        .setLngLat([28.03732, -26.19219])
+        .addTo(map);
+      // Get the paragraph element by ID
+      const coordinatesParagraph = document.getElementById("coordinates");
+
+      // Get the user's current position and update the first marker
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+
+        marker1.setLngLat([longitude, latitude]);
+        map.jumpTo({
+          center: marker1.getLngLat(),
+        });
+
+        // Update the paragraph element with the coordinates
+        coordinatesParagraph.textContent = `Current Coordinates: Latitude ${latitude.toFixed(
+          6
+        )}, Longitude ${longitude.toFixed(6)}`;
+
+        // Now, after getting the current location, draw the route
+        drawRoute(marker1.getLngLat(), marker2.getLngLat());
+      });
+
+      // Function to draw the route between two points
+      /*
+        start = [lng, lang] => [8,10]
+
+
+      */
+
+      function drawRoute(start, end) {
+        const start_coord = `${start.lng},${start.lat}`;
+        const end_coord = `${end.lng},${end.lat}`;
+
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start_coord};${end_coord}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const route = data.routes[0].geometry.coordinates;
+            map.addLayer({
+              id: "route",
+              type: "line",
+              source: {
+                type: "geojson",
+                data: {
+                  type: "Feature",
+                  properties: {},
+                  geometry: {
+                    type: "LineString",
+                    coordinates: route,
+                  },
+                },
+              },
+              layout: {
+                "line-join": "round",
+                "line-cap": "round",
+              },
+              paint: {
+                "line-color": "#3887be",
+                "line-width": 5,
+              },
+            });
+          });
+      }
+    </script>
+  </body>
+</html>
